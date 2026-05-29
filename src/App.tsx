@@ -1,5 +1,40 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
+import bmwBlue from "./assets/vehicles/bmw-blue.png";
+import audiSilver from "./assets/vehicles/audi-silver.png";
+import mercedesBlack from "./assets/vehicles/mercedes-black.png";
+import vwBlue from "./assets/vehicles/vw-blue.png";
+import porscheYellow from "./assets/vehicles/porsche-yellow.png";
+import manRedTruck from "./assets/vehicles/man-red-truck.png";
+import dhlYellowTruck from "./assets/vehicles/dhl-yellow-truck.png";
+import mercedesGrayVan from "./assets/vehicles/mercedes-gray-van.png";
+import freiburgBg from "./assets/backgrounds/freiburg-im-breisgau.png";
+import kirchzartenBg from "./assets/backgrounds/kirchzarten-valley.png";
+import hinterzartenBg from "./assets/backgrounds/hinterzarten-climb.png";
+import titiseeBg from "./assets/backgrounds/titisee-lakeside.png";
+import loeffingenBg from "./assets/backgrounds/loeffingen-heights.png";
+import donaueschingenBg from "./assets/backgrounds/donaueschingen-source.png";
+import geisingenBg from "./assets/backgrounds/geisingen-fields.png";
+import engenBg from "./assets/backgrounds/engen-hegau.png";
+import radolfzellBg from "./assets/backgrounds/radolfzell-shoreline.png";
+import konstanzBg from "./assets/backgrounds/konstanz-arrival.png";
+
+import freiburgIcon from "./assets/level-icons/freiburg-start.png";
+import kirchzartenIcon from "./assets/level-icons/kirchzarten-valley.png";
+import hinterzartenIcon from "./assets/level-icons/hinterzarten-climb.png";
+import titiseeIcon from "./assets/level-icons/titisee-lakeside.png";
+import loeffingenIcon from "./assets/level-icons/loeffingen-heights.png";
+import donaueschingenIcon from "./assets/level-icons/donaueschingen-source.png";
+import geisingenIcon from "./assets/level-icons/geisingen-fields.png";
+import engenIcon from "./assets/level-icons/engen-hegau.png";
+import radolfzellIcon from "./assets/level-icons/radolfzell-shoreline.png";
+import konstanzIcon from "./assets/level-icons/konstanz-arrival.png";
+
+import melissaVictorySprite from "./assets/player/melissa-victory.png";
+
+const TITLE_MELISSA_FRAME_WIDTH = 142;
+const TITLE_MELISSA_FRAME_HEIGHT = 230;
+const TITLE_MELISSA_FRAME_INDEX = 2; // soldan 3. frame
 
 const MAX_LIVES = 3;
 const MAX_STAMINA = 100;
@@ -16,13 +51,17 @@ const WAVE_RANDOM_GAP = 440;
 
 type LaneIndex = 0 | 1 | 2;
 type ItemKind = "water" | "shield" | "banana" | "coffee" | "croissant";
+type PlayerAnim = "normal" | "sprint" | "left" | "right" | "hurt" | "victory";
+type HorizontalInput = "none" | "left" | "right";
 
 type GameLevel = {
   id: number;
   title: string;
   subtitle: string;
+  description: string;
   badge: string;
   themeClass: string;
+  backgroundImage?: string;
   finishDistance: number;
   speedMultiplier: number;
   trafficIntensity: number;
@@ -39,6 +78,7 @@ type Lane = {
 
 type VehicleKind = {
   brand: string;
+  sprite: string;
   cssClass: string;
   sizeClass: string;
   width: number;
@@ -72,99 +112,129 @@ const LEVELS: GameLevel[] = [
   {
     id: 1,
     title: "Freiburg Start",
-    subtitle: "Urban warm-up",
-    badge: "🏙️",
+    subtitle: "Leaving Freiburg im Breisgau",
+    description:
+      "Melissa sets off from Freiburg, rolling out of the city toward the eastern countryside.",
+    badge: freiburgIcon,
     themeClass: "theme-city",
+    backgroundImage: freiburgBg,
     finishDistance: 500,
     speedMultiplier: 1,
     trafficIntensity: 0,
   },
   {
     id: 2,
-    title: "Black Forest",
-    subtitle: "Green roads and tight traffic",
-    badge: "🌲",
+    title: "Kirchzarten Valley",
+    subtitle: "Entering the Dreisam Valley",
+    description:
+      "Melissa leaves the city behind and rides into the greener, calmer valley roads near Kirchzarten.",
+    badge: kirchzartenIcon,
     themeClass: "theme-forest",
+    backgroundImage: kirchzartenBg,
     finishDistance: 560,
     speedMultiplier: 1.04,
     trafficIntensity: 0.04,
   },
   {
     id: 3,
-    title: "Rural Valley",
-    subtitle: "Open countryside",
-    badge: "🌾",
+    title: "Hinterzarten Climb",
+    subtitle: "Climbing into the Upper Black Forest",
+    description:
+      "Melissa pushes uphill toward Hinterzarten, entering higher forest roads and cooler mountain air.",
+    badge: hinterzartenIcon,
     themeClass: "theme-rural",
+    backgroundImage: hinterzartenBg,
     finishDistance: 590,
     speedMultiplier: 1.06,
     trafficIntensity: 0.06,
   },
   {
     id: 4,
-    title: "Bodensee Approach",
-    subtitle: "Blue lake horizon",
-    badge: "🌊",
+    title: "Titisee Lakeside",
+    subtitle: "Riding past the lake",
+    description:
+      "After the climb, Melissa reaches the Titisee area, where the route opens into lakeside views and fresh forest light.",
+    badge: titiseeIcon,
     themeClass: "theme-lake",
+    backgroundImage: titiseeBg,
     finishDistance: 620,
     speedMultiplier: 1.08,
     trafficIntensity: 0.08,
   },
   {
     id: 5,
-    title: "Desert Road",
-    subtitle: "Heat and long straights",
-    badge: "🏜️",
+    title: "Löffingen Heights",
+    subtitle: "Across the high plateau",
+    description:
+      "Melissa continues across the higher open terrain near Löffingen, where the forest gives way to broader skies and exposed roads.",
+    badge: loeffingenIcon,
     themeClass: "theme-desert",
+    backgroundImage: loeffingenBg,
     finishDistance: 650,
     speedMultiplier: 1.1,
     trafficIntensity: 0.09,
   },
   {
     id: 6,
-    title: "Volcanic Pass",
-    subtitle: "Lava road chaos",
-    badge: "🌋",
+    title: "Donaueschingen Source",
+    subtitle: "Past the beginning of the Danube",
+    description:
+      "Melissa rides through Donaueschingen, passing historic town scenery near the famous source of the Danube.",
+    badge: donaueschingenIcon,
     themeClass: "theme-volcano",
+    backgroundImage: donaueschingenBg,
     finishDistance: 680,
     speedMultiplier: 1.12,
     trafficIntensity: 0.1,
   },
   {
     id: 7,
-    title: "Night Autobahn",
-    subtitle: "Fast lights, fast cars",
-    badge: "🌙",
+    title: "Geisingen Fields",
+    subtitle: "Rolling toward the Hegau",
+    description:
+      "Melissa crosses the open fields around Geisingen, with broader roads and changing winds as the route turns south.",
+    badge: geisingenIcon,
     themeClass: "theme-night",
+    backgroundImage: geisingenBg,
     finishDistance: 720,
     speedMultiplier: 1.16,
     trafficIntensity: 0.12,
   },
   {
     id: 8,
-    title: "Snowy Alps",
-    subtitle: "Cold air and slippery lanes",
-    badge: "❄️",
+    title: "Engen Hegau",
+    subtitle: "Volcanic hills on the horizon",
+    description:
+      "Melissa reaches the Hegau landscape near Engen, where distinct volcanic hills rise in the distance.",
+    badge: engenIcon,
     themeClass: "theme-snow",
+    backgroundImage: engenBg,
     finishDistance: 760,
     speedMultiplier: 1.12,
     trafficIntensity: 0.14,
   },
   {
     id: 9,
-    title: "Rainy City",
-    subtitle: "Wet asphalt, low visibility",
-    badge: "🌧️",
+    title: "Radolfzell Shoreline",
+    subtitle: "First real glimpse of Bodensee",
+    description:
+      "Melissa reaches Radolfzell, where the route finally opens toward the shoreline and the first wide views of Lake Constance.",
+    badge: radolfzellIcon,
     themeClass: "theme-rain",
+    backgroundImage: radolfzellBg,
     finishDistance: 800,
     speedMultiplier: 1.18,
     trafficIntensity: 0.15,
   },
   {
     id: 10,
-    title: "Sunset Coast",
-    subtitle: "Final ride to Konstanz",
-    badge: "🌅",
+    title: "Konstanz Arrival",
+    subtitle: "Final ride to Bodensee",
+    description:
+      "Melissa finishes the journey in Konstanz, riding into the lakeside city for the final Bodensee arrival.",
+    badge: konstanzIcon,
     themeClass: "theme-sunset",
+    backgroundImage: konstanzBg,
     finishDistance: 850,
     speedMultiplier: 1.22,
     trafficIntensity: 0.17,
@@ -175,25 +245,25 @@ const LANES: Lane[] = [
   {
     name: "Lower Lane",
     shortName: "Lower",
-    playerBottom: 52,
-    vehicleBottom: 66,
-    itemBottom: 48,
+    playerBottom: 18,
+    vehicleBottom: 28,
+    itemBottom: 30,
     zIndex: 62,
   },
   {
     name: "Middle Lane",
     shortName: "Middle",
-    playerBottom: 192,
-    vehicleBottom: 206,
-    itemBottom: 198,
+    playerBottom: 108,
+    vehicleBottom: 118,
+    itemBottom: 120,
     zIndex: 52,
   },
   {
     name: "Upper Lane",
     shortName: "Upper",
-    playerBottom: 332,
-    vehicleBottom: 346,
-    itemBottom: 348,
+    playerBottom: 198,
+    vehicleBottom: 208,
+    itemBottom: 210,
     zIndex: 42,
   },
 ];
@@ -201,66 +271,74 @@ const LANES: Lane[] = [
 const VEHICLE_KINDS: VehicleKind[] = [
   {
     brand: "BMW",
+    sprite: bmwBlue,
     cssClass: "car-bmw",
     sizeClass: "vehicle-car",
-    width: 132,
-    height: 58,
+    width: 145,
+    height: 72,
     speedFactor: 1.08,
   },
   {
     brand: "AUDI",
+    sprite: audiSilver,
     cssClass: "car-audi",
     sizeClass: "vehicle-car",
-    width: 138,
-    height: 58,
+    width: 150,
+    height: 72,
     speedFactor: 1.04,
   },
   {
     brand: "MERC",
+    sprite: mercedesBlack,
     cssClass: "car-mercedes",
     sizeClass: "vehicle-car",
-    width: 146,
-    height: 60,
+    width: 155,
+    height: 74,
     speedFactor: 1,
   },
   {
     brand: "VW",
+    sprite: vwBlue,
     cssClass: "car-vw",
     sizeClass: "vehicle-car-small",
-    width: 120,
-    height: 56,
+    width: 135,
+    height: 70,
     speedFactor: 1.12,
   },
   {
     brand: "POR",
+    sprite: porscheYellow,
     cssClass: "car-porsche",
     sizeClass: "vehicle-sport",
-    width: 150,
-    height: 54,
+    width: 158,
+    height: 72,
     speedFactor: 1.2,
   },
   {
     brand: "MAN",
+    sprite: manRedTruck,
     cssClass: "truck-man",
     sizeClass: "vehicle-truck",
-    width: 230,
-    height: 82,
+    width: 250,
+    height: 110,
     speedFactor: 0.82,
   },
   {
     brand: "DHL",
+    sprite: dhlYellowTruck,
     cssClass: "truck-dhl",
     sizeClass: "vehicle-truck",
-    width: 220,
-    height: 80,
+    width: 235,
+    height: 105,
     speedFactor: 0.86,
   },
   {
     brand: "MB",
+    sprite: mercedesGrayVan,
     cssClass: "truck-mercedes",
     sizeClass: "vehicle-truck",
-    width: 240,
-    height: 84,
+    width: 220,
+    height: 100,
     speedFactor: 0.78,
   },
 ];
@@ -415,6 +493,32 @@ function getSavedUnlockedLevel() {
   return Math.max(0, Math.min(LEVELS.length - 1, parsedValue));
 }
 
+function renderLevelBadge(
+  badge: string,
+  title: string,
+  className: string
+) {
+  const isImage =
+    badge.includes(".png") ||
+    badge.includes(".jpg") ||
+    badge.includes(".jpeg") ||
+    badge.includes(".webp") ||
+    badge.includes(".svg");
+
+  if (isImage) {
+    return (
+      <img
+        src={badge}
+        alt={`${title} badge`}
+        className={className}
+        draggable="false"
+      />
+    );
+  }
+
+  return <span className={className}>{badge}</span>;
+}
+
 function App() {
   const [selectedLevelIndex, setSelectedLevelIndex] = useState(0);
   const [unlockedLevelIndex, setUnlockedLevelIndex] =
@@ -446,6 +550,8 @@ function App() {
 
   const [playerX, setPlayerX] = useState(210);
   const [playerLane, setPlayerLane] = useState<LaneIndex>(1);
+  const [horizontalInput, setHorizontalInput] =
+  useState<HorizontalInput>("none");
 
   const [trafficWaves, setTrafficWaves] = useState<TrafficWave[]>(() =>
     createInitialWaves(LEVELS[0])
@@ -479,6 +585,7 @@ function App() {
   const isShiftHeldRef = useRef(false);
   const isLeftHeldRef = useRef(false);
   const isRightHeldRef = useRef(false);
+  const horizontalInputRef = useRef<HorizontalInput>("none");
 
   const speedLevel = getSpeedLevelFromDistance(
     distance,
@@ -494,6 +601,21 @@ function App() {
       String(unlockedLevelIndex)
     );
   }, [unlockedLevelIndex]);
+
+  function setHorizontalDirection(direction: HorizontalInput) {
+    horizontalInputRef.current = direction;
+    setHorizontalInput(direction);
+  }
+
+  function getPlayerAnimation(): PlayerAnim {
+    if (isStageComplete) return "victory";
+    if (isGameOver || isInvincible) return "hurt";
+    if (horizontalInput === "left") return "left";
+    if (horizontalInput === "right") return "right";
+    if (isSprinting || coffeeTime > 0) return "sprint";
+
+    return "normal";
+}
 
   function showEvent(text: string) {
     setEventText(text);
@@ -555,6 +677,9 @@ function App() {
     isShiftHeldRef.current = false;
     isLeftHeldRef.current = false;
     isRightHeldRef.current = false;
+
+    horizontalInputRef.current = "none";
+    setHorizontalInput("none");
 
     distanceRef.current = 0;
     setDistance(0);
@@ -648,7 +773,7 @@ function App() {
 
     playerLaneRef.current = nextLane;
     setPlayerLane(nextLane);
-    setMessage(`${LANES[nextLane].name}`);
+    setMessage("");
   }
 
   function takeDamage() {
@@ -755,7 +880,7 @@ function App() {
     }
   }
 
-  function useBottle() {
+  function drinkBottle() {
     if (!isGameStarted || isGameOver || isStageComplete) return;
 
     if (bottles <= 0) {
@@ -941,11 +1066,11 @@ function App() {
     }
   }
 
-  function getIncomingWarnings() {
+  function getIncomingWarnings(waves: TrafficWave[]) {
     const screenWidth = getViewportWidth();
     const warnings: LaneIndex[] = [];
 
-    for (const wave of trafficWavesRef.current) {
+    for (const wave of waves) {
       if (wave.x < screenWidth - 220 || wave.x > screenWidth + 430) continue;
 
       for (const vehicle of wave.vehicles) {
@@ -959,92 +1084,104 @@ function App() {
   }
 
   useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.code === "Enter") {
-        if (!isGameStarted && !isGameOver && !isStageComplete) {
-          startGame();
-        }
-
-        return;
+  function handleKeyDown(event: KeyboardEvent) {
+    if (event.code === "Enter") {
+      if (!isGameStarted && !isGameOver && !isStageComplete) {
+        startGame();
       }
 
-      if (event.code === "KeyR" || event.code === "KeyM") {
-        returnToMap();
-        return;
-      }
-
-      if (event.code === "KeyN") {
-        if (isStageComplete) {
-          goToNextLevel();
-        }
-
-        return;
-      }
-
-      if (event.code === "KeyE") {
-        useBottle();
-        return;
-      }
-
-      if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
-        isShiftHeldRef.current = true;
-        return;
-      }
-
-      if (event.code === "KeyA" || event.code === "ArrowLeft") {
-        event.preventDefault();
-        isLeftHeldRef.current = true;
-        return;
-      }
-
-      if (event.code === "KeyD" || event.code === "ArrowRight") {
-        event.preventDefault();
-        isRightHeldRef.current = true;
-        return;
-      }
-
-      if (event.code === "KeyW" || event.code === "ArrowUp") {
-        event.preventDefault();
-        switchLane(1);
-        return;
-      }
-
-      if (event.code === "KeyS" || event.code === "ArrowDown") {
-        event.preventDefault();
-        switchLane(-1);
-      }
+      return;
     }
 
-    function handleKeyUp(event: KeyboardEvent) {
-      if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
-        isShiftHeldRef.current = false;
-        setIsSprinting(false);
-      }
-
-      if (event.code === "KeyA" || event.code === "ArrowLeft") {
-        isLeftHeldRef.current = false;
-      }
-
-      if (event.code === "KeyD" || event.code === "ArrowRight") {
-        isRightHeldRef.current = false;
-      }
+    if (event.code === "KeyR" || event.code === "KeyM") {
+      returnToMap();
+      return;
     }
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+    if (event.code === "KeyN") {
+      if (isStageComplete) {
+        goToNextLevel();
+      }
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, [
-    isGameStarted,
-    isGameOver,
-    isStageComplete,
-    bottles,
-    lives,
-    selectedLevelIndex,
-  ]);
+      return;
+    }
+
+    if (event.code === "KeyE") {
+      drinkBottle();
+      return;
+    }
+
+    if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
+      isShiftHeldRef.current = true;
+      return;
+    }
+
+    if (event.code === "KeyA" || event.code === "ArrowLeft") {
+      event.preventDefault();
+      isLeftHeldRef.current = true;
+      return;
+    }
+
+    if (event.code === "KeyD" || event.code === "ArrowRight") {
+      event.preventDefault();
+      isRightHeldRef.current = true;
+      return;
+    }
+
+    if (event.code === "KeyW" || event.code === "ArrowUp") {
+      event.preventDefault();
+      switchLane(1);
+
+      setHorizontalDirection("left");
+      window.setTimeout(() => {
+        setHorizontalDirection("none");
+      }, 340);
+
+      return;
+    }
+
+    if (event.code === "KeyS" || event.code === "ArrowDown") {
+      event.preventDefault();
+      switchLane(-1);
+
+      setHorizontalDirection("right");
+      window.setTimeout(() => {
+        setHorizontalDirection("none");
+      }, 340);
+    }
+  }
+
+  function handleKeyUp(event: KeyboardEvent) {
+    if (event.code === "ShiftLeft" || event.code === "ShiftRight") {
+      isShiftHeldRef.current = false;
+      setIsSprinting(false);
+    }
+
+    if (event.code === "KeyA" || event.code === "ArrowLeft") {
+      isLeftHeldRef.current = false;
+    }
+
+    if (event.code === "KeyD" || event.code === "ArrowRight") {
+      isRightHeldRef.current = false;
+    }
+  }
+
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("keyup", handleKeyUp);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("keyup", handleKeyUp);
+  };
+}, 
+[
+  isGameStarted,
+  isGameOver,
+  isStageComplete,
+  bottles,
+  lives,
+  selectedLevelIndex,
+]);
 
   useEffect(() => {
     if (!isGameStarted || isGameOver || isStageComplete) return;
@@ -1128,7 +1265,7 @@ function App() {
       const roadSpeed =
         getBaseRoadSpeed(currentSpeedLevel) * totalSpeedMultiplier;
 
-      let movedWaves = trafficWavesRef.current.map((wave) => ({
+      const movedWaves = trafficWavesRef.current.map((wave) => ({
         ...wave,
         x: wave.x - roadSpeed * deltaTime,
       }));
@@ -1162,7 +1299,7 @@ function App() {
       trafficWavesRef.current = movedWaves;
       setTrafficWaves(movedWaves);
 
-      let movedItems = roadItemsRef.current.map((item) => ({
+      const movedItems = roadItemsRef.current.map((item) => ({
         ...item,
         x: item.x - roadSpeed * 0.72 * deltaTime,
       }));
@@ -1223,65 +1360,65 @@ function App() {
     };
   }, [isGameStarted, isGameOver, isStageComplete, selectedLevelIndex]);
 
-  const incomingWarnings = getIncomingWarnings();
+  const incomingWarnings = getIncomingWarnings(trafficWaves);
+  const playerAnimation = getPlayerAnimation();
 
   return (
     <div
       className={`game ${selectedLevel.themeClass} ${
-        !isGameStarted ? "not-started" : ""
-      } ${isGameOver ? "game-over" : ""} ${
-        isStageComplete ? "stage-complete" : ""
-      }`}
+  selectedLevel.backgroundImage ? "has-art-bg" : ""
+} ${!isGameStarted ? "not-started" : ""} ${
+  isGameOver ? "game-over" : ""
+} ${isStageComplete ? "stage-complete" : ""}`}
     >
       {(isGameStarted || isGameOver || isStageComplete) && (
-        <div className="hud">
-          <div className="hud-title">
-            <span>{selectedLevel.badge}</span>
-            <strong>{selectedLevel.title}</strong>
-          </div>
+  <>
+    <div className="game-progress-hud">
+      <div
+        className="game-progress-fill"
+        style={{
+          width: `${Math.min(
+            100,
+            (distance / selectedLevel.finishDistance) * 100
+          )}%`,
+        }}
+      />
+    </div>
 
-          <div className="stat-grid">
-            <div className="stat">🏆 {score}</div>
-            <div className="stat">🔥 x{combo}</div>
-            <div className="stat">
-              📍 {distance}/{selectedLevel.finishDistance}m
-            </div>
-            <div className="stat">⚡ Lv.{speedLevel}</div>
-            <div className="stat">{isSprinting ? "🔥 Sprint" : "🚲 Normal"}</div>
-            <div className="stat">🛣️ {currentLane.shortName}</div>
-            <div className="stat">❤️ {"❤️".repeat(lives)}</div>
-            <div className="stat">
-              💧 {bottles} {hasShield ? "🛡️" : ""}
-            </div>
-          </div>
+    <div className="core-hud-left">
+      <span className="hud-pill">❤️ {lives}</span>
+      <span className="hud-pill">💧 {bottles}</span>
+      {hasShield && <span className="hud-pill">🛡️</span>}
+    </div>
 
-          <div className="power-row">
-            <span>{coffeeTime > 0 ? `☕ ${coffeeTime}s` : "☕ -"}</span>
-            <span>{bananaTime > 0 ? `🍌 ${bananaTime}s` : "🍌 -"}</span>
-          </div>
+    <div className="core-hud-right">
+      <span className="hud-pill">📍 {distance}m</span>
+      {combo > 0 && <span className="hud-pill combo-pill">🔥 x{combo}</span>}
+    </div>
 
-          <div className="stamina-row">
-            <span>🔋</span>
-            <div className="stamina-bar">
-              <div
-                className="stamina-fill"
-                style={{ width: `${stamina}%` }}
-              ></div>
-            </div>
-            <span>{stamina}</span>
-          </div>
+    {(isSprinting || stamina < 100) && (
+      <div className="minimal-stamina">
+        <div
+          className="minimal-stamina-fill"
+          style={{ width: `${stamina}%` }}
+        />
+      </div>
+    )}
 
-          <div className="message-line">{message}</div>
+    {(coffeeTime > 0 || bananaTime > 0) && (
+      <div className="active-buffs">
+        {coffeeTime > 0 && <span>☕ {coffeeTime}s</span>}
+        {bananaTime > 0 && <span>🍌 {bananaTime}s</span>}
+      </div>
+    )}
 
-          <div className="controls-hint">
-            <span>A/D move</span>
-            <span>W/S lane</span>
-            <span>Shift sprint</span>
-            <span>E bottle</span>
-          </div>
-        </div>
+    {message &&
+      message !== "Choose a stage" &&
+      message !== "Ride started!" && (
+        <div className="minimal-message">{message}</div>
       )}
-
+  </>
+)}
       {eventText && (
         <div key={eventKey} className="event-pop">
           {eventText}
@@ -1291,10 +1428,27 @@ function App() {
       {!isGameStarted && !isGameOver && !isStageComplete && (
         <div className="level-select-panel">
           <div className="level-select-header">
-            <div>
-              <h1>🚴‍♀️ Ride to Bodensee</h1>
-              <p>Choose a route stage and survive the ride to Konstanz.</p>
-            </div>
+            <div className="game-title-row">
+  <div className="menu-mascot-badge">
+    <div
+      className="title-melissa-icon"
+      style={{
+        backgroundImage: `url(${melissaVictorySprite})`,
+        width: `${TITLE_MELISSA_FRAME_WIDTH}px`,
+        height: `${TITLE_MELISSA_FRAME_HEIGHT}px`,
+        backgroundPosition: `-${
+          TITLE_MELISSA_FRAME_INDEX * TITLE_MELISSA_FRAME_WIDTH
+        }px 0px`,
+      }}
+    />
+  </div>
+
+  <div className="game-title-text">
+    <span className="game-kicker">Melissa’s cycling adventure</span>
+    <h1>Ride to Bodensee</h1>
+    <p>Choose a route stage and survive the ride to Konstanz.</p>
+  </div>
+</div>
 
             <div className="level-progress">
               Unlocked {unlockedLevelIndex + 1}/{LEVELS.length}
@@ -1308,17 +1462,40 @@ function App() {
 
               return (
                 <button
-                  key={level.id}
-                  className={`level-card ${level.themeClass} ${
-                    isSelected ? "selected" : ""
-                  } ${isLocked ? "locked" : ""}`}
-                  onClick={() => selectLevel(index)}
-                  disabled={isLocked}
-                >
+  key={level.id}
+  className={`level-card ${level.themeClass} ${
+    level.backgroundImage ? "level-card-art" : ""
+  } ${isSelected ? "selected" : ""} ${isLocked ? "locked" : ""}`}
+  style={
+    level.backgroundImage
+      ? {
+          backgroundImage: `linear-gradient(
+            to bottom,
+            rgba(15, 23, 42, 0.18) 0%,
+            rgba(15, 23, 42, 0.12) 42%,
+            rgba(15, 23, 42, 0.72) 100%
+          ), url(${level.backgroundImage})`,
+        }
+      : undefined
+  }
+  onClick={() => selectLevel(index)}
+  disabled={isLocked}
+>
                   <div className="level-card-top">
                     <span className="level-badge">
-                      {isLocked ? "🔒" : level.badge}
-                    </span>
+  {isLocked ? (
+    "🔒"
+  ) : level.badge.includes(".png") ? (
+    <img
+      className="level-badge-image"
+      src={level.badge}
+      alt={`${level.title} badge`}
+      draggable="false"
+    />
+  ) : (
+    level.badge
+  )}
+</span>
                     <span className="level-number">Stage {level.id}</span>
                   </div>
 
@@ -1326,64 +1503,122 @@ function App() {
                   <p>{level.subtitle}</p>
 
                   <div className="level-card-meta">
-                    <span>📍 {level.finishDistance}m</span>
-                    <span>⚡ x{level.speedMultiplier.toFixed(2)}</span>
-                  </div>
+  <span>📍 {level.finishDistance}m</span>
+</div>
                 </button>
               );
             })}
           </div>
 
-          <div className="level-select-footer">
-            <button className="primary-button" onClick={startGame}>
-              Start {selectedLevel.badge} {selectedLevel.title}
-            </button>
+          <div className="selected-stage-preview">
+  <div className="selected-stage-main">
+    <div className="selected-stage-badge-wrap">
+      {renderLevelBadge(
+        selectedLevel.badge,
+        selectedLevel.title,
+        "selected-stage-badge-image"
+      )}
+    </div>
 
-            <p>Controls: A/D move · W/S lane · Shift sprint · E bottle · R map</p>
-          </div>
+    <div className="selected-stage-copy">
+      <span className="selected-stage-kicker">Selected stage</span>
+      <h3>{selectedLevel.title}</h3>
+      <h4>{selectedLevel.subtitle}</h4>
+      <p>{selectedLevel.description}</p>
+
+      <div className="selected-stage-meta">
+        <span>📍 {selectedLevel.finishDistance}m</span>
+        <span>🚴 Melissa route</span>
+      </div>
+    </div>
+  </div>
+
+  <div className="selected-stage-actions">
+    <div className="selected-stage-action-note">
+      Ready for the next ride?
+    </div>
+
+    <button className="primary-button" onClick={startGame}>
+      Start Stage
+    </button>
+  </div>
+</div>
         </div>
       )}
 
-      {isGameOver && (
-        <div className="game-over-panel">
-          <h2>💥 Game Over</h2>
-          <p>{selectedLevel.title} got too dangerous.</p>
-          <p>Score: {score}</p>
-          <p>Best Combo: x{bestCombo}</p>
-          <p>Distance: {distance} m</p>
-          <p>Bottles left: {bottles}</p>
-          <p>Rank: {getFinalRank(lives, bottles, score)}</p>
+     {isGameOver && (
+  <div className="game-over-panel compact-game-over-panel">
+    <div className="compact-game-over-header">
+      <span>💥</span>
+      <div>
+        <h2>Game Over</h2>
+        <p>{selectedLevel.title} was too dangerous</p>
+      </div>
+    </div>
 
-          <div className="panel-actions">
-            <button onClick={returnToMap}>Back to Map</button>
-            <button onClick={retryCurrentLevel}>Retry</button>
-          </div>
-        </div>
-      )}
+    <div className="compact-game-over-stats">
+      <span>🏆 {score}</span>
+      <span>🔥 x{bestCombo}</span>
+      <span>📍 {distance}m</span>
+      <span>💧 {bottles}</span>
+    </div>
+
+    <div className="compact-rank danger-rank">
+      {getFinalRank(lives, bottles, score)}
+    </div>
+
+    <div className="panel-actions compact-actions">
+      <button onClick={returnToMap}>Map</button>
+      <button onClick={retryCurrentLevel}>Retry</button>
+    </div>
+
+    <p className="small-hint">R/M = map</p>
+  </div>
+)}
 
       {isStageComplete && (
-        <div className="stage-complete-panel">
-          <h2>🏁 Stage Complete!</h2>
-          <p>{selectedLevel.title} cleared.</p>
-          <p>Score: {score}</p>
-          <p>Best Combo: x{bestCombo}</p>
-          <p>Lives left: {"❤️".repeat(lives)}</p>
-          <p>Bottles left: {bottles}</p>
-          <p>Rank: {finalRank}</p>
+  <div className="stage-complete-panel compact-stage-panel">
+    <div className="compact-stage-header">
+      <span>🏁</span>
+      <div>
+        <h2>Stage Complete!</h2>
+        <p>{selectedLevel.title} cleared</p>
+      </div>
+    </div>
 
-          <div className="panel-actions">
-            <button onClick={returnToMap}>Map</button>
-            <button onClick={goToNextLevel}>
-              {selectedLevelIndex >= LEVELS.length - 1 ? "Finish" : "Next Stage"}
-            </button>
-          </div>
+    <div className="compact-stage-stats">
+      <span>🏆 {score}</span>
+      <span>🔥 x{bestCombo}</span>
+      <span>❤️ {lives}</span>
+      <span>💧 {bottles}</span>
+    </div>
 
-          <p className="small-hint">N = next stage · R/M = map</p>
-        </div>
-      )}
+    <div className="compact-rank">
+      {finalRank}
+    </div>
+
+    <div className="panel-actions compact-actions">
+      <button onClick={returnToMap}>Map</button>
+      <button onClick={goToNextLevel}>
+        {selectedLevelIndex >= LEVELS.length - 1 ? "Finish" : "Next"}
+      </button>
+    </div>
+
+    <p className="small-hint">N = next · R/M = map</p>
+  </div>
+)}
 
       <div className="scene">
-        <div className="sky-glow"></div>
+  {selectedLevel.backgroundImage && (
+    <div
+      className="level-background-image"
+      style={{
+        backgroundImage: `url(${selectedLevel.backgroundImage})`,
+      }}
+    />
+  )}
+
+  <div className="sky-glow"></div>
 
         <div className="theme-decor decor-a"></div>
         <div className="theme-decor decor-b"></div>
@@ -1422,28 +1657,27 @@ function App() {
         ))}
 
         {trafficWaves.flatMap((wave) =>
-          wave.vehicles.map((vehicle) => (
-            <div
-              key={vehicle.id}
-              className={`vehicle ${vehicle.kind.cssClass} ${vehicle.kind.sizeClass}`}
-              style={{
-                width: `${vehicle.kind.width}px`,
-                height: `${vehicle.kind.height}px`,
-                bottom: `${LANES[vehicle.lane].vehicleBottom}px`,
-                zIndex: LANES[vehicle.lane].zIndex,
-                transform: `translateX(${wave.x + vehicle.offsetX}px)`,
-              }}
-            >
-              <div className="vehicle-shine"></div>
-              <span className="vehicle-brand">{vehicle.kind.brand}</span>
-              <div className="vehicle-window vehicle-window-one"></div>
-              <div className="vehicle-window vehicle-window-two"></div>
-              <div className="vehicle-light"></div>
-              <div className="vehicle-wheel vehicle-wheel-left"></div>
-              <div className="vehicle-wheel vehicle-wheel-right"></div>
-            </div>
-          ))
-        )}
+  wave.vehicles.map((vehicle) => (
+    <div
+      key={vehicle.id}
+      className={`vehicle-sprite-wrapper ${vehicle.kind.sizeClass}`}
+      style={{
+        width: `${vehicle.kind.width}px`,
+        height: `${vehicle.kind.height}px`,
+        bottom: `${LANES[vehicle.lane].vehicleBottom}px`,
+        zIndex: LANES[vehicle.lane].zIndex,
+        transform: `translateX(${wave.x + vehicle.offsetX}px)`,
+      }}
+    >
+      <img
+        className="vehicle-sprite"
+        src={vehicle.kind.sprite}
+        alt={vehicle.kind.brand}
+        draggable="false"
+      />
+    </div>
+  ))
+)}
 
         {roadItems.map((item) => (
           <div
@@ -1469,13 +1703,11 @@ function App() {
     zIndex: currentLane.zIndex + 3,
   }}
 >
-  <div className="player-name-tag">Melissa</div>
 
-  <img
-    className="player-sprite"
-    src="/assets/player/melissa-bike.png"
-    alt="Melissa riding a bike"
-    draggable="false"
+  <div
+    className={`player-sprite-strip player-sprite-${playerAnimation}`}
+    role="img"
+    aria-label="Melissa riding a bike"
   />
 </div>
       </div>
