@@ -6,7 +6,8 @@ Freiburg–Konstanz is a production-ready browser game and frontend engineering 
 stylized journey from Freiburg im Breisgau to Lake Constance into ten short arcade stages built
 around positioning, stamina management, pickups, traffic, and near-miss scoring.
 
-[View the source repository](https://github.com/wh1tebrun/bisiklet)
+[Play Freiburg–Konstanz](https://wh1tebrun.github.io/freiburg-konstanz/) ·
+[View the source repository](https://github.com/wh1tebrun/freiburg-konstanz)
 
 The route is fictionalized and is not intended for navigation or real-world cycling guidance.
 
@@ -77,8 +78,8 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete design and ver
 - npm with the committed lockfile
 
 ```bash
-git clone https://github.com/wh1tebrun/bisiklet.git
-cd bisiklet
+git clone https://github.com/wh1tebrun/freiburg-konstanz.git
+cd freiburg-konstanz
 npm ci
 npm run dev
 ```
@@ -95,8 +96,7 @@ npm run dev
 | `npm run build`        | Produce the optimized `dist/` bundle |
 
 Pull requests and pushes to `main` run the CI quality and build workflow. Pushes to `main` also
-produce a checked `dist/` artifact and deploy it through GitHub Pages. This README intentionally
-does not publish a live URL until the Pages deployment has been verified.
+produce a checked `dist/` artifact and deploy it through GitHub Pages.
 
 ## Release status
 
