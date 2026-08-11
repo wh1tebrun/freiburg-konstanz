@@ -3,6 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "description": "A deterministic browser cycling arcade across ten stylized stages from Freiburg to Konstanz.",
+  "homepage": "https://wh1tebrun.github.io/freiburg-konstanz/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wh1tebrun/freiburg-konstanz.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wh1tebrun/freiburg-konstanz/issues"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
