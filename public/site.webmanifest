@@ -1,0 +1,18 @@
+{
+  "name": "Freiburg–Konstanz",
+  "short_name": "Freiburg–Konstanz",
+  "description": "Ride ten stylized stages from Freiburg to Konstanz, dodging traffic, managing stamina, collecting boosts, and chaining near-misses.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

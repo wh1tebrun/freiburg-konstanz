@@ -1,73 +1,116 @@
-# React + TypeScript + Vite
+# Freiburg–Konstanz
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### A Black Forest cycling arcade.
 
-Currently, two official plugins are available:
+Freiburg–Konstanz is a production-ready browser game and frontend engineering case study. It turns a
+stylized journey from Freiburg im Breisgau to Lake Constance into ten short arcade stages built
+around positioning, stamina management, pickups, traffic, and near-miss scoring.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+[View the source repository](https://github.com/wh1tebrun/bisiklet)
 
-## React Compiler
+The route is fictionalized and is not intended for navigation or real-world cycling guidance.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## What the project demonstrates
 
-## Expanding the ESLint configuration
+- A deterministic TypeScript simulation that is independent of React and browser APIs
+- Time-sliced state advancement with equivalent results at 60, 120, and 144 Hz
+- Seeded vehicle and pickup generation for reproducible tests
+- A near-miss combo system with a capped 5× score multiplier
+- Equivalent keyboard and pointer-based touch controls
+- Defensive, versioned local progression with migration from earlier storage keys
+- Responsive layouts, safe-area support, visible focus, live announcements, and reduced motion
+- A locked quality pipeline covering formatting, linting, strict type checking, tests, and builds
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Gameplay
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+The player guides Melissa across three lanes while moving horizontally to avoid traffic. Sprinting
+trades stamina for speed; water, shields, bananas, coffee, and croissants change the available
+options during a run. Passing close to a vehicle without colliding starts or extends a combo. Each
+near miss raises the award multiplier up to 5×, while a collision resets the active combo without
+erasing the best streak from the run.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Completing a stage unlocks the next stretch of the ten-stage route. Progress is stored only in the
+current browser and the game continues safely when storage is blocked or contains invalid data.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Controls
+
+| Action                    | Keyboard               | Touch / pointer   |
+| ------------------------- | ---------------------- | ----------------- |
+| Start a stage             | `Enter` or Start stage | Start stage       |
+| Move horizontally         | `A` / `D` or `←` / `→` | Hold Left / Right |
+| Change lane               | `W` / `S` or `↑` / `↓` | Up / Down         |
+| Sprint                    | Hold `Shift`           | Hold Boost        |
+| Use a water bottle        | `E`                    | H₂O               |
+| Pause or resume           | `P` or `Esc`           | Pause / Resume    |
+| Return to the route       | `M`                    | Route map         |
+| Retry after a failed run  | `R`                    | Retry stage       |
+| Continue after completion | `N`                    | Next stage        |
+
+Held movement is released and an active run is paused when the page loses focus or becomes hidden.
+
+## Architecture
+
+The application is split around one-way dependencies:
+
+| Area                  | Responsibility                                                                   |
+| --------------------- | -------------------------------------------------------------------------------- |
+| `src/game/`           | Immutable game state, simulation, collision rules, scoring, RNG, progression     |
+| `src/app/`            | Browser lifecycle, animation scheduling, input normalization, persistence wiring |
+| `src/components/`     | Route selection, gameplay scene, HUD, touch controls, dialogs                    |
+| `src/content/`        | Canonical product identity and presentation copy                                 |
+| `src/styles/`         | Responsive application and gameplay styling                                      |
+| `src/assets/runtime/` | Purpose-sized WebP artwork used by the application                               |
+| `tests/`              | Timing, collision, effects, progression, RNG, and rendered-interface contracts   |
+
+`stepGame(state, input, deltaSeconds)` is the central simulation boundary. It splits elapsed time
+into bounded slices and stops precisely at effect, stamina, and route-speed boundaries. Scoring and
+movement therefore depend on simulation time rather than the number of rendered frames. Random state
+travels with the game state, so the same seed and inputs produce the same world.
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the complete design and verification model.
+
+## Local development
+
+### Requirements
+
+- Node.js 24 or newer
+- npm with the committed lockfile
+
+```bash
+git clone https://github.com/wh1tebrun/bisiklet.git
+cd bisiklet
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Quality commands
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Command                | Purpose                              |
+| ---------------------- | ------------------------------------ |
+| `npm run format:check` | Verify repository formatting         |
+| `npm run lint`         | Run strict, type-aware ESLint rules  |
+| `npm run typecheck`    | Compile-check application and tests  |
+| `npm run test`         | Run the deterministic Vitest suite   |
+| `npm run check`        | Run all required quality gates       |
+| `npm run build`        | Produce the optimized `dist/` bundle |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Pull requests and pushes to `main` run the CI quality and build workflow. Pushes to `main` also
+produce a checked `dist/` artifact and deploy it through GitHub Pages. This README intentionally
+does not publish a live URL until the Pages deployment has been verified.
+
+## Release status
+
+Version 1.0.0 is the production-ready case-study release. It includes the complete route, desktop
+and touch gameplay, deterministic simulation, local progression, responsive presentation, automated
+tests, and repository release standards. The application is client-only: it has no account system,
+backend, analytics, or cloud save.
+
+## Assets and licensing
+
+The MIT license in [LICENSE](LICENSE) applies to source code only. Visual assets are demonstration
+assets and are excluded from the MIT grant. Their provenance and redistribution rights must be
+verified before reuse or publication; repository access must not be treated as permission to reuse
+them. See [ASSETS.md](ASSETS.md).
+
+Development expectations are in [CONTRIBUTING.md](CONTRIBUTING.md). Security issues should follow
+the private reporting process in [SECURITY.md](SECURITY.md).
